@@ -14,7 +14,197 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          balance: number
+          category_id: string
+          created_at: string
+          date: string
+          event_id: string
+          id: string
+          item_name: string
+          notes: string | null
+          paid_amount: number
+          paid_by_id: string
+          paid_status: Database["public"]["Enums"]["paid_status"]
+          payment_mode_id: string
+          quantity: number
+          total_amount: number
+          unit_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance: number
+          category_id: string
+          created_at?: string
+          date: string
+          event_id: string
+          id?: string
+          item_name: string
+          notes?: string | null
+          paid_amount?: number
+          paid_by_id: string
+          paid_status?: Database["public"]["Enums"]["paid_status"]
+          payment_mode_id: string
+          quantity?: number
+          total_amount: number
+          unit_price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          category_id?: string
+          created_at?: string
+          date?: string
+          event_id?: string
+          id?: string
+          item_name?: string
+          notes?: string | null
+          paid_amount?: number
+          paid_by_id?: string
+          paid_status?: Database["public"]["Enums"]["paid_status"]
+          payment_mode_id?: string
+          quantity?: number
+          total_amount?: number
+          unit_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_paid_by_id_fkey"
+            columns: ["paid_by_id"]
+            isOneToOne: false
+            referencedRelation: "paid_by"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_payment_mode_id_fkey"
+            columns: ["payment_mode_id"]
+            isOneToOne: false
+            referencedRelation: "payment_modes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paid_by: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_modes: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +213,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      paid_status: "paid" | "half_paid" | "unpaid"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +340,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      paid_status: ["paid", "half_paid", "unpaid"],
+    },
   },
 } as const
