@@ -15,16 +15,17 @@ const Index = () => {
   const [needsSetup, setNeedsSetup] = useState<boolean | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Redirect to auth if not authenticated
-  if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
-  }
-
+  // ALL HOOKS MUST BE DECLARED BEFORE ANY CONDITIONAL RETURNS
   useEffect(() => {
     if (user) {
       checkSetupStatus();
     }
   }, [user]);
+
+  // Redirect to auth if not authenticated
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const checkSetupStatus = async () => {
     try {
