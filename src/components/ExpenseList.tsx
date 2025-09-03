@@ -158,8 +158,8 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-16 bg-muted rounded"></div>
+            {Array.from({ length: 5 }, (_, i) => (
+              <div key={`loading-${i}`} className="h-16 bg-muted rounded"></div>
             ))}
           </div>
         </CardContent>
