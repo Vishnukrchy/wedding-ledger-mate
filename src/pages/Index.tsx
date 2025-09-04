@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, LogOut, Plus, BarChart3 } from 'lucide-react';
+import { Heart, Sparkles, LogOut, Plus, BarChart3, Package, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import Dashboard from '@/components/Dashboard';
 import ExpenseForm from '@/components/ExpenseForm';
 import ExpenseList from '@/components/ExpenseList';
 import SetupWizard from '@/components/SetupWizard';
+import Services from '@/components/Services';
+import Analytics from '@/components/Analytics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -106,10 +108,14 @@ const Index = () => {
             <Dashboard />
           </section>
 
-          {/* Tabs for Expense Management */}
+          {/* Main Management Tabs */}
           <section>
-            <Tabs defaultValue="add" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+            <Tabs defaultValue="services" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+                <TabsTrigger value="services" className="flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  Services
+                </TabsTrigger>
                 <TabsTrigger value="add" className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
                   Add Expense
@@ -118,7 +124,15 @@ const Index = () => {
                   <BarChart3 className="h-4 w-4" />
                   Expense List
                 </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Analytics
+                </TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="services" className="mt-6">
+                <Services />
+              </TabsContent>
               
               <TabsContent value="add" className="mt-6">
                 <ExpenseForm onExpenseAdded={handleExpenseAdded} />
@@ -126,6 +140,10 @@ const Index = () => {
               
               <TabsContent value="list" className="mt-6">
                 <ExpenseList refreshTrigger={refreshTrigger} />
+              </TabsContent>
+              
+              <TabsContent value="analytics" className="mt-6">
+                <Analytics />
               </TabsContent>
             </Tabs>
           </section>
