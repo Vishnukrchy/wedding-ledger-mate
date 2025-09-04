@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Heart, Sparkles, CheckCircle, MapPin, Camera, Utensils, Music, Flower, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import BookingForm from '@/components/BookingForm';
 
 const Services = () => {
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
   const { toast } = useToast();
 
   const packages = [
@@ -26,7 +29,16 @@ const Services = () => {
         'Bridal bouquet',
         'Basic sound system'
       ],
-      description: 'Perfect for small, intimate ceremonies with close family and friends.'
+      description: 'Perfect for small, intimate ceremonies with close family and friends.',
+      includes: {
+        venue: true,
+        catering: true,
+        photography: '4 hours',
+        decoration: 'Basic',
+        coordinator: true,
+        music: 'Basic sound system',
+        flowers: 'Bridal bouquet only'
+      }
     },
     {
       id: 'premium',
@@ -46,7 +58,17 @@ const Services = () => {
         'Wedding cake',
         'Transportation coordination'
       ],
-      description: 'Comprehensive wedding package with premium services and elegant styling.'
+      description: 'Comprehensive wedding package with premium services and elegant styling.',
+      includes: {
+        venue: true,
+        catering: true,
+        photography: '8 hours + videography',
+        decoration: 'Premium floral design',
+        coordinator: true,
+        music: 'Professional DJ',
+        flowers: 'Full floral package',
+        extras: ['Wedding cake', 'Transportation']
+      }
     },
     {
       id: 'destination',
@@ -66,7 +88,17 @@ const Services = () => {
         'Multi-day event planning',
         '24/7 on-site coordination'
       ],
-      description: 'Complete destination wedding experience with travel coordination and local expertise.'
+      description: 'Complete destination wedding experience with travel coordination and local expertise.',
+      includes: {
+        venue: true,
+        catering: true,
+        photography: 'Full coverage + videography',
+        decoration: 'Destination-themed',
+        coordinator: '24/7 on-site',
+        music: 'Professional setup',
+        flowers: 'Local & imported',
+        extras: ['Travel planning', 'Legal assistance', 'Multi-day events']
+      }
     }
   ];
 
@@ -78,13 +110,23 @@ const Services = () => {
   ];
 
   const handleBookPackage = (packageId: string) => {
-    setSelectedPackage(packageId);
-    const packageName = packages.find(p => p.id === packageId)?.name;
+    const selectedPkg = packages.find(p => p.id === packageId);
+    if (selectedPkg) {
+      setSelectedPackage(packageId);
+      setShowBookingForm(true);
+    }
+  };
+
+  const handleBookingComplete = () => {
+    setShowBookingForm(false);
+    setSelectedPackage(null);
     toast({
-      title: "Booking Request Sent!",
-      description: `Our sales team will contact you within 24 hours to discuss your ${packageName} package.`,
+      title: "Booking Request Submitted!",
+      description: "Our wedding consultants will contact you within 24 hours to discuss your requirements.",
     });
   };
+
+  const selectedPkg = packages.find(p => p.id === selectedPackage);
 
   return (
     <div className="space-y-8">
@@ -105,7 +147,7 @@ const Services = () => {
               key={pkg.id} 
               className={`relative transition-all duration-300 hover:shadow-elegant ${
                 pkg.popular ? 'border-primary shadow-card' : 'border-border'
-              } ${selectedPackage === pkg.id ? 'ring-2 ring-primary' : ''}`}
+              }`}
             >
               {pkg.popular && (
                 <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-gradient-primary text-white">
@@ -136,14 +178,34 @@ const Services = () => {
                   ))}
                 </div>
                 
-                <Button 
-                  className="w-full" 
-                  variant={pkg.popular ? "default" : "outline"}
-                  onClick={() => handleBookPackage(pkg.id)}
-                  disabled={selectedPackage === pkg.id}
-                >
-                  {selectedPackage === pkg.id ? 'Request Sent!' : 'Book This Package'}
-                </Button>
+                <Dialog open={showBookingForm && selectedPackage === pkg.id} onOpenChange={setShowBookingForm}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      className="w-full" 
+                      variant={pkg.popular ? "default" : "outline"}
+                      onClick={() => handleBookPackage(pkg.id)}
+                    >
+                      Book This Package
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <IconComponent className="h-5 w-5 text-primary" />
+                        Book {selectedPkg?.name}
+                      </DialogTitle>
+                      <DialogDescription>
+                        Fill in your details to book the {selectedPkg?.name} package. Our team will contact you to finalize the arrangements.
+                      </DialogDescription>
+                    </DialogHeader>
+                    {selectedPkg && (
+                      <BookingForm 
+                        package={selectedPkg} 
+                        onBookingComplete={handleBookingComplete}
+                      />
+                    )}
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           );
@@ -161,12 +223,15 @@ const Services = () => {
           {additionalServices.map((service, index) => {
             const IconComponent = service.icon;
             return (
-              <Card key={index} className="text-center p-4 hover:shadow-card transition-all duration-300">
+              <Card key={index} className="text-center p-4 hover:shadow-card transition-all duration-300 cursor-pointer hover:border-primary/30">
                 <div className="mx-auto p-2 rounded-full bg-gradient-subtle w-fit mb-3">
                   <IconComponent className="h-5 w-5 text-primary" />
                 </div>
                 <h4 className="font-medium text-foreground mb-1">{service.name}</h4>
-                <p className="text-sm text-primary font-semibold">{service.price}</p>
+                <p className="text-sm text-primary font-semibold mb-2">{service.price}</p>
+                <Button size="sm" variant="outline" className="w-full">
+                  Add to Package
+                </Button>
               </Card>
             );
           })}
