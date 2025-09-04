@@ -22,9 +22,9 @@ const Index = () => {
     }
   }, [user]);
 
-  // Redirect to auth if not authenticated
+  // Redirect to landing page if not authenticated
   if (!loading && !user) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/" replace />;
   }
 
   const checkSetupStatus = async () => {
