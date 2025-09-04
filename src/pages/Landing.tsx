@@ -68,6 +68,74 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Services Section */}
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-primary-glow/5">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Complete Wedding Management Services
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              From intimate ceremonies to grand destination weddings, we provide comprehensive 
+              wedding management services with complete transparency and budget control.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="text-center p-8 rounded-xl bg-card border border-primary/20 shadow-card hover:shadow-elegant transition-all duration-300 hover:border-primary/40">
+              <div className="p-4 rounded-full bg-gradient-rose w-fit mx-auto mb-6">
+                <Heart className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Destination Weddings</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Plan your dream destination wedding with our expert team. Complete coordination 
+                from venue selection to guest management, all within your budget.
+              </p>
+            </div>
+            
+            <div className="text-center p-8 rounded-xl bg-card border border-primary/20 shadow-card hover:shadow-elegant transition-all duration-300 hover:border-primary/40">
+              <div className="p-4 rounded-full bg-gradient-primary w-fit mx-auto mb-6">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Event Management</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Full-service event management from pre-wedding ceremonies to reception. 
+                Professional coordination ensuring every moment is perfect.
+              </p>
+            </div>
+            
+            <div className="text-center p-8 rounded-xl bg-card border border-primary/20 shadow-card hover:shadow-elegant transition-all duration-300 hover:border-primary/40 md:col-span-2 lg:col-span-1">
+              <div className="p-4 rounded-full bg-gradient-elegant w-fit mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Complete Wedding Packages</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                All-inclusive packages covering every aspect of your wedding - venue, catering, 
+                decoration, photography, and more. One package, everything covered.
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-16 text-center">
+            <div className="max-w-4xl mx-auto p-8 rounded-xl bg-card border border-primary/30 shadow-elegant">
+              <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Start Planning?</h3>
+              <p className="text-muted-foreground mb-6 text-lg">
+                Save your wedding details and our dedicated sales team will reach out to discuss 
+                your perfect wedding package. Get confirmed bookings with complete transparency.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button size="lg" variant="elegant" asChild>
+                  <Link to="/auth">Book Your Wedding</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild>
+                  <Link to="/auth">Get Free Consultation</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 bg-card/50">
         <div className="container mx-auto px-4">
