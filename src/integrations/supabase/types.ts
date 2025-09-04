@@ -183,25 +183,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          booking_data: Json | null
+          budget_range: string | null
+          contact_phone: string | null
           created_at: string
           display_name: string | null
+          estimated_guests: number | null
           id: string
+          package_preference: string | null
           updated_at: string
           user_id: string
+          venue_preference: string | null
+          wedding_date: string | null
         }
         Insert: {
+          booking_data?: Json | null
+          budget_range?: string | null
+          contact_phone?: string | null
           created_at?: string
           display_name?: string | null
+          estimated_guests?: number | null
           id?: string
+          package_preference?: string | null
           updated_at?: string
           user_id: string
+          venue_preference?: string | null
+          wedding_date?: string | null
         }
         Update: {
+          booking_data?: Json | null
+          budget_range?: string | null
+          contact_phone?: string | null
           created_at?: string
           display_name?: string | null
+          estimated_guests?: number | null
           id?: string
+          package_preference?: string | null
           updated_at?: string
           user_id?: string
+          venue_preference?: string | null
+          wedding_date?: string | null
         }
         Relationships: []
       }
