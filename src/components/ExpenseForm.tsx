@@ -95,6 +95,43 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
       return;
     }
 
+    // Validate required fields
+    if (!data.category_id) {
+      toast({
+        title: "Error",
+        description: "Please select a category",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!data.paid_by_id) {
+      toast({
+        title: "Error",
+        description: "Please select who paid for this expense",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!data.event_id) {
+      toast({
+        title: "Error",
+        description: "Please select an event",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!data.payment_mode_id) {
+      toast({
+        title: "Error",
+        description: "Please select a payment mode",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -229,6 +266,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">* Required</p>
             </div>
 
             <div className="space-y-2">
@@ -303,6 +341,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">* Required</p>
             </div>
 
             <div className="space-y-2">
@@ -319,6 +358,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">* Required</p>
             </div>
 
             <div className="space-y-2">
@@ -335,6 +375,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground">* Required</p>
             </div>
           </div>
 
