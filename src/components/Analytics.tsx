@@ -1,329 +1,546 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Calendar, 
-  PieChart, 
-  BarChart3,
-  FileText,
-  Download
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-
-interface ExpenseData {
-  id: string;
-  item_name: string;
-  total_amount: number;
-  paid_amount: number;
-  balance: number;
-  date: string;
-  paid_status: 'paid' | 'half_paid' | 'unpaid';
-  category_id: string;
-  event_id: string;
-}
-
-interface AnalyticsData {
-  totalBudget: number;
-  totalSpent: number;
-  totalBalance: number;
-  expensesByCategory: { [key: string]: number };
-  expensesByEvent: { [key: string]: number };
-  expensesByStatus: { [key: string]: number };
-  recentExpenses: ExpenseData[];
-  monthlyTrend: { month: string; amount: number }[];
-}
+import { TrendingUp, DollarSign, CreditCard, Calendar, Target, AlertTriangle, CheckCircle, Clock, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
 
 const Analytics = () => {
-  const { user } = useAuth();
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchAnalyticsData();
-    }
-  }, [user]);
+    loadExpenses();
+  }, []);
 
-  const fetchAnalyticsData = async () => {
+  const loadExpenses = async () => {
     try {
-      setLoading(true);
-      
-      const { data: expenses, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
         .from('expenses')
         .select(`
           *,
           categories(name),
-          events(name)
+          paid_by(name),
+          events(name),
+          payment_modes(name)
         `)
-        .eq('user_id', user?.id);
+        .eq('user_id', user.id)
+        .order('date', { ascending: false });
 
       if (error) throw error;
-
-      if (expenses) {
-        const analyticsData = processExpenseData(expenses);
-        setAnalytics(analyticsData);
-      }
+      setExpenses(data || []);
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error('Error loading expenses:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const processExpenseData = (expenses: any[]): AnalyticsData => {
-    const totalBudget = expenses.reduce((sum, exp) => sum + Number(exp.total_amount), 0);
-    const totalSpent = expenses.reduce((sum, exp) => sum + Number(exp.paid_amount), 0);
-    const totalBalance = expenses.reduce((sum, exp) => sum + Number(exp.balance), 0);
+  // Calculate summary statistics
+  const totalSpent = expenses.reduce((sum, expense) => sum + expense.total_amount, 0);
+  const totalPaid = expenses.reduce((sum, expense) => sum + expense.paid_amount, 0);
+  const totalBalance = expenses.reduce((sum, expense) => sum + expense.balance, 0);
+  const paymentPercent = totalSpent > 0 ? (totalPaid / totalSpent) * 100 : 0;
 
-    const expensesByCategory = expenses.reduce((acc, exp) => {
-      const categoryName = exp.categories?.name || 'Uncategorized';
-      acc[categoryName] = (acc[categoryName] || 0) + Number(exp.total_amount);
-      return acc;
-    }, {});
+  // Budget analysis (assuming a target budget)
+  const estimatedBudget = 500000; // ₹5 lakh default wedding budget
+  const budgetUsed = (totalSpent / estimatedBudget) * 100;
 
-    const expensesByEvent = expenses.reduce((acc, exp) => {
-      const eventName = exp.events?.name || 'No Event';
-      acc[eventName] = (acc[eventName] || 0) + Number(exp.total_amount);
-      return acc;
-    }, {});
-
-    const expensesByStatus = expenses.reduce((acc, exp) => {
-      acc[exp.paid_status] = (acc[exp.paid_status] || 0) + Number(exp.total_amount);
-      return acc;
-    }, {});
-
-    // Get recent expenses (last 5)
-    const recentExpenses = expenses
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 5);
-
-    // Monthly trend (simplified - last 6 months)
-    const monthlyTrend = generateMonthlyTrend(expenses);
-
-    return {
-      totalBudget,
-      totalSpent,
-      totalBalance,
-      expensesByCategory,
-      expensesByEvent,
-      expensesByStatus,
-      recentExpenses,
-      monthlyTrend
-    };
-  };
-
-  const generateMonthlyTrend = (expenses: any[]) => {
-    const months = [];
-    const now = new Date();
-    
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = date.toLocaleDateString('default', { month: 'short', year: 'numeric' });
-      
-      const monthExpenses = expenses.filter(exp => {
-        const expDate = new Date(exp.date);
-        return expDate.getMonth() === date.getMonth() && expDate.getFullYear() === date.getFullYear();
-      });
-      
-      const monthAmount = monthExpenses.reduce((sum, exp) => sum + Number(exp.paid_amount), 0);
-      months.push({ month: monthName, amount: monthAmount });
+  // Category-wise spending with detailed analysis
+  const categoryData = expenses.reduce((acc, expense) => {
+    const category = expense.categories?.name || 'Unknown';
+    if (!acc[category]) {
+      acc[category] = {
+        total: 0,
+        paid: 0,
+        balance: 0,
+        count: 0,
+        items: []
+      };
     }
-    
-    return months;
-  };
+    acc[category].total += expense.total_amount;
+    acc[category].paid += expense.paid_amount;
+    acc[category].balance += expense.balance;
+    acc[category].count += 1;
+    acc[category].items.push(expense);
+    return acc;
+  }, {});
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
+  const categoryChartData = Object.entries(categoryData).map(([name, data]: [string, any]) => ({
+    name,
+    total: data.total,
+    paid: data.paid,
+    balance: data.balance,
+    count: data.count,
+    percent: totalSpent > 0 ? ((data.total / totalSpent) * 100).toFixed(1) : 0
+  }));
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800 border-green-200';
-      case 'half_paid': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'unpaid': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  // Monthly spending trend with cumulative analysis
+  const monthlyData = expenses.reduce((acc, expense) => {
+    const month = new Date(expense.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    if (!acc[month]) {
+      acc[month] = { total: 0, paid: 0, balance: 0, count: 0 };
     }
-  };
+    acc[month].total += expense.total_amount;
+    acc[month].paid += expense.paid_amount;
+    acc[month].balance += expense.balance;
+    acc[month].count += 1;
+    return acc;
+  }, {});
+
+  const monthlyChartData = Object.entries(monthlyData)
+    .map(([month, data]: [string, any]) => ({
+      month,
+      total: data.total,
+      paid: data.paid,
+      balance: data.balance,
+      count: data.count
+    }))
+    .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime());
+
+  // Payment status distribution with detailed breakdown
+  const statusData = expenses.reduce((acc, expense) => {
+    if (!acc[expense.paid_status]) {
+      acc[expense.paid_status] = { count: 0, amount: 0 };
+    }
+    acc[expense.paid_status].count += 1;
+    acc[expense.paid_status].amount += expense.total_amount;
+    return acc;
+  }, {});
+
+  const statusChartData = Object.entries(statusData).map(([status, data]: [string, any]) => ({
+    status: status.replace('_', ' ').toUpperCase(),
+    count: data.count,
+    amount: data.amount,
+    color: status === 'paid' ? '#22c55e' : status === 'half_paid' ? '#f59e0b' : '#ef4444'
+  }));
+
+  // Event-wise spending analysis
+  const eventData = expenses.reduce((acc, expense) => {
+    const event = expense.events?.name || 'General';
+    if (!acc[event]) {
+      acc[event] = { total: 0, paid: 0, balance: 0, count: 0 };
+    }
+    acc[event].total += expense.total_amount;
+    acc[event].paid += expense.paid_amount;
+    acc[event].balance += expense.balance;
+    acc[event].count += 1;
+    return acc;
+  }, {});
+
+  const eventChartData = Object.entries(eventData).map(([name, data]: [string, any]) => ({
+    name,
+    total: data.total,
+    paid: data.paid,
+    balance: data.balance,
+    count: data.count
+  }));
+
+  // Payment method analysis
+  const paymentMethodData = expenses.reduce((acc, expense) => {
+    const method = expense.payment_modes?.name || 'Unknown';
+    if (!acc[method]) {
+      acc[method] = { total: 0, count: 0 };
+    }
+    acc[method].total += expense.paid_amount;
+    acc[method].count += 1;
+    return acc;
+  }, {});
+
+  const paymentMethodChartData = Object.entries(paymentMethodData).map(([name, data]: [string, any]) => ({
+    name,
+    total: data.total,
+    count: data.count
+  }));
+
+  // Recent expenses and upcoming payments
+  const recentExpenses = expenses.slice(0, 10);
+  const upcomingPayments = expenses.filter(e => e.balance > 0).slice(0, 5);
+
+  const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#22c55e', '#ec4899', '#8b5a3c'];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
       </div>
     );
   }
 
-  if (!analytics) {
+  if (expenses.length === 0) {
     return (
-      <Card>
-        <CardContent className="text-center p-12">
-          <PieChart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-foreground mb-2">No Data Available</h3>
-          <p className="text-muted-foreground">Add some expenses to see analytics and insights.</p>
-        </CardContent>
-      </Card>
+      <div className="text-center p-8">
+        <PieChartIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">No Expenses Yet</h3>
+        <p className="text-muted-foreground">Add some expenses to see detailed analytics and insights.</p>
+      </div>
     );
   }
-
-  const budgetUtilization = (analytics.totalSpent / analytics.totalBudget) * 100;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Wedding Budget Analytics</h2>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Download className="h-4 w-4" />
-          Export Report
-        </Button>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+      {/* Key Metrics Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(analytics.totalBudget)}</div>
+            <div className="text-2xl font-bold">₹{totalSpent.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              {budgetUsed.toFixed(1)}% of estimated budget (₹{estimatedBudget.toLocaleString()})
+            </p>
+            <Progress value={budgetUsed} className="mt-2" />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-green-500">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Amount Paid</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(analytics.totalSpent)}</div>
+            <div className="text-2xl font-bold text-green-600">₹{totalPaid.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {budgetUtilization.toFixed(1)}% of budget used
+              {paymentPercent.toFixed(1)}% of total expenses
+            </p>
+            <Progress value={paymentPercent} className="mt-2" />
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-orange-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Balance</CardTitle>
+            <Clock className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">₹{totalBalance.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              Across {upcomingPayments.length} pending items
+            </p>
+            {totalBalance > 0 && (
+              <Badge variant="outline" className="mt-2 text-orange-600 border-orange-200">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Attention Required
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <BarChart3 className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{expenses.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Across {Object.keys(categoryData).length} categories
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              Avg: ₹{(totalSpent / expenses.length).toLocaleString()}
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Remaining Balance</CardTitle>
-            <TrendingDown className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(analytics.totalBalance)}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{analytics.recentExpenses.length}</div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Expenses by Category */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5" />
-              Expenses by Category
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {Object.entries(analytics.expensesByCategory).map(([category, amount]) => (
-                <div key={category} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">{category}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full" 
-                        style={{ width: `${(amount / analytics.totalBudget) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-sm text-muted-foreground">{formatCurrency(amount)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* Detailed Analytics Tabs */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="payments">Payments</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
+        </TabsList>
 
-        {/* Monthly Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Monthly Spending Trend
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {analytics.monthlyTrend.map((month, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">{month.month}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-muted rounded-full h-2">
-                      <div 
-                        className="bg-gradient-primary h-2 rounded-full" 
-                        style={{ 
-                          width: `${analytics.monthlyTrend.length > 0 ? 
-                            (month.amount / Math.max(...analytics.monthlyTrend.map(m => m.amount))) * 100 : 0}%` 
-                        }}
-                      />
-                    </div>
-                    <span className="text-sm text-muted-foreground">{formatCurrency(month.amount)}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Spending Distribution by Category</CardTitle>
+                <CardDescription>Visual breakdown of expenses across categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={categoryChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${percent}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="total"
+                    >
+                      {categoryChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `₹${Number(value).toLocaleString()}`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-      {/* Recent Expenses */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Expenses</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {analytics.recentExpenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div className="flex-1">
-                  <div className="font-medium text-foreground">{expense.item_name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(expense.date).toLocaleDateString()}
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="font-medium text-foreground">{formatCurrency(expense.total_amount)}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Paid: {formatCurrency(expense.paid_amount)}
-                    </div>
-                  </div>
-                  <Badge className={getStatusColor(expense.paid_status)}>
-                    {expense.paid_status.replace('_', ' ')}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Status Overview</CardTitle>
+                <CardDescription>Current payment status distribution</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={statusChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="status" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value, name) => [
+                        name === 'count' ? value : `₹${Number(value).toLocaleString()}`,
+                        name === 'count' ? 'Items' : 'Amount'
+                      ]}
+                    />
+                    <Legend />
+                    <Bar dataKey="amount" fill="#8884d8" name="Amount" />
+                    <Bar dataKey="count" fill="#82ca9d" name="Count" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="categories" className="space-y-4">
+          <div className="grid gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Category-wise Detailed Analysis</CardTitle>
+                <CardDescription>Comprehensive breakdown by expense categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {categoryChartData.map((category, index) => (
+                    <div key={category.name} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                          />
+                          {category.name}
+                        </h4>
+                        <Badge variant="secondary">{category.count} items</Badge>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Total Amount</p>
+                          <p className="font-medium">₹{category.total.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Paid Amount</p>
+                          <p className="font-medium text-green-600">₹{category.paid.toLocaleString()}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Balance</p>
+                          <p className="font-medium text-orange-600">₹{category.balance.toLocaleString()}</p>
+                        </div>
+                      </div>
+                      <Progress 
+                        value={category.total > 0 ? (category.paid / category.total) * 100 : 0} 
+                        className="mt-2" 
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Monthly Spending Timeline</CardTitle>
+              <CardDescription>Track your spending patterns over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <AreaChart data={monthlyChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip formatter={(value) => `₹${Number(value).toLocaleString()}`} />
+                  <Legend />
+                  <Area type="monotone" dataKey="total" stackId="1" stroke="#8884d8" fill="#8884d8" />
+                  <Area type="monotone" dataKey="paid" stackId="2" stroke="#82ca9d" fill="#82ca9d" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="payments" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment Methods Used</CardTitle>
+                <CardDescription>Analysis of payment preferences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={paymentMethodChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ₹${Number(value).toLocaleString()}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="total"
+                    >
+                      {paymentMethodChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `₹${Number(value).toLocaleString()}`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Payments</CardTitle>
+                <CardDescription>Items requiring attention</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {upcomingPayments.map((expense) => (
+                    <div key={expense.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{expense.item_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {expense.categories?.name} • Due: {new Date(expense.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-orange-600">₹{expense.balance.toLocaleString()}</p>
+                        <Badge variant="outline" className="text-xs">
+                          {expense.paid_status.replace('_', ' ').toUpperCase()}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {upcomingPayments.length === 0 && (
+                    <p className="text-center text-muted-foreground py-4">All payments up to date! 🎉</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Top 5 Highest Expenses</CardTitle>
+                <CardDescription>Your biggest wedding investments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {expenses
+                    .sort((a, b) => b.total_amount - a.total_amount)
+                    .slice(0, 5)
+                    .map((expense, index) => (
+                      <div key={expense.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-bold text-primary">#{index + 1}</span>
+                          </div>
+                          <div>
+                            <p className="font-medium">{expense.item_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {expense.categories?.name} • {new Date(expense.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium">₹{expense.total_amount.toLocaleString()}</p>
+                          <Badge variant={
+                            expense.paid_status === 'paid' ? 'default' :
+                            expense.paid_status === 'half_paid' ? 'secondary' : 'destructive'
+                          }>
+                            {expense.paid_status.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Budget Insights</CardTitle>
+                <CardDescription>Smart recommendations for your wedding budget</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h4 className="font-medium text-blue-900 mb-2">💡 Budget Efficiency</h4>
+                    <p className="text-sm text-blue-700">
+                      You've spent {budgetUsed.toFixed(1)}% of your estimated budget. 
+                      {budgetUsed > 80 ? " Consider reviewing remaining expenses carefully." : 
+                       budgetUsed < 50 ? " You're well within budget with room for extras." :
+                       " You're on track with your spending."}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h4 className="font-medium text-green-900 mb-2">✅ Payment Progress</h4>
+                    <p className="text-sm text-green-700">
+                      {paymentPercent.toFixed(1)}% of expenses are paid. 
+                      {paymentPercent > 80 ? " Excellent payment discipline!" :
+                       paymentPercent > 50 ? " Good progress on payments." :
+                       " Consider catching up on pending payments."}
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h4 className="font-medium text-purple-900 mb-2">📊 Category Analysis</h4>
+                    <p className="text-sm text-purple-700">
+                      Your top spending category is {categoryChartData[0]?.name} at ₹{categoryChartData[0]?.total.toLocaleString()}.
+                      This represents {categoryChartData[0]?.percent}% of your total budget.
+                    </p>
+                  </div>
+
+                  {totalBalance > 0 && (
+                    <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+                      <h4 className="font-medium text-orange-900 mb-2">⚠️ Pending Attention</h4>
+                      <p className="text-sm text-orange-700">
+                        You have ₹{totalBalance.toLocaleString()} in pending payments across {upcomingPayments.length} items. 
+                        Consider prioritizing these to stay on track.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
