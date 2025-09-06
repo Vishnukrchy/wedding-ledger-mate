@@ -259,8 +259,8 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
+                  {categories.filter(category => category.id && category.id.toString().trim() !== '').map((category) => (
+                    <SelectItem key={category.id} value={category.id.toString()}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -334,8 +334,8 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   <SelectValue placeholder="Select who paid" />
                 </SelectTrigger>
                 <SelectContent>
-                  {paidByOptions.map((option) => (
-                    <SelectItem key={option.id} value={option.id}>
+                  {paidByOptions.filter(option => option.id && option.id.toString().trim() !== '').map((option) => (
+                    <SelectItem key={option.id} value={option.id.toString()}>
                       {option.name}
                     </SelectItem>
                   ))}
@@ -351,8 +351,8 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   <SelectValue placeholder="Select event" />
                 </SelectTrigger>
                 <SelectContent>
-                  {events.map((event) => (
-                    <SelectItem key={event.id} value={event.id}>
+                  {events.filter(event => event.id && event.id.toString().trim() !== '').map((event) => (
+                    <SelectItem key={event.id} value={event.id.toString()}>
                       {event.name}
                     </SelectItem>
                   ))}
@@ -368,8 +368,8 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                   <SelectValue placeholder="Select payment mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  {paymentModes.map((mode) => (
-                    <SelectItem key={mode.id} value={mode.id}>
+                  {paymentModes.filter(mode => mode.id && mode.id.toString().trim() !== '').map((mode) => (
+                    <SelectItem key={mode.id} value={mode.id.toString()}>
                       {mode.name}
                     </SelectItem>
                   ))}
