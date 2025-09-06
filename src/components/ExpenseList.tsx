@@ -100,15 +100,15 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
       );
     }
 
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all') {
       filtered = filtered.filter(expense => expense.categories.name === categoryFilter);
     }
 
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== 'all') {
       filtered = filtered.filter(expense => expense.paid_status === statusFilter);
     }
 
-    if (eventFilter) {
+    if (eventFilter && eventFilter !== 'all') {
       filtered = filtered.filter(expense => expense.events.name === eventFilter);
     }
 
@@ -201,7 +201,7 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All categories</SelectItem>
+                <SelectItem value="all">All categories</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.name}>
                     {category.name}
@@ -218,7 +218,7 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
+                <SelectItem value="all">All statuses</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="half_paid">Half Paid</SelectItem>
                 <SelectItem value="unpaid">Unpaid</SelectItem>
@@ -233,7 +233,7 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                 <SelectValue placeholder="All events" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All events</SelectItem>
+                <SelectItem value="all">All events</SelectItem>
                 {events.map((event) => (
                   <SelectItem key={event.id} value={event.name}>
                     {event.name}
