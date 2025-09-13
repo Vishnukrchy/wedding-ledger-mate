@@ -37,23 +37,23 @@ const Landing = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              अपनी परफेक्ट शादी का
+              Track Your Perfect
               <span className="block bg-gradient-rose bg-clip-text text-transparent">
-                बजट ट्रैकर
+                Wedding Day
               </span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              शादी के हर खर्च को आसानी से ट्रैक करें। अपने बजट में रहें, 
-              पेमेंट्स मैनेज करें और अपनी ड्रीम शादी को हकीकत बनाएं।
+              Manage all your wedding expenses with elegance and ease. Stay on budget, 
+              track payments, and make your dream wedding a reality.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button size="lg" variant="elegant" asChild className="min-w-[200px]">
-                <Link to="/auth">शुरू करें - बिल्कुल फ्री!</Link>
+                <Link to="/auth">Start Planning Now</Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-                <Link to="/auth">लॉगिन करें</Link>
+                <Link to="/auth">Sign In</Link>
               </Button>
             </div>
           </div>
@@ -73,11 +73,11 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              पूरी शादी की मैनेजमेंट सर्विसेज
+              Complete Wedding Management Services
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              छोटी इंटिमेट सेरेमनी से लेकर ग्रैंड डेस्टिनेशन वेडिंग तक - हमारी कंप्लीट 
-              वेडिंग मैनेजमेंट सर्विस। पूरी ट्रांसपैरेंसी और बजट कंट्रोल के साथ।
+              From intimate ceremonies to grand destination weddings, we provide comprehensive 
+              wedding management services with complete transparency and budget control.
             </p>
           </div>
           
@@ -86,10 +86,10 @@ const Landing = () => {
               <div className="p-4 rounded-full bg-gradient-rose w-fit mx-auto mb-6">
                 <Heart className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">डेस्टिनेशन वेडिंग</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Destination Weddings</h3>
               <p className="text-muted-foreground leading-relaxed">
-                हमारी एक्सपर्ट टीम के साथ अपनी ड्रीम डेस्टिनेशन वेडिंग प्लान करें। 
-                वेन्यू सेलेक्शन से गेस्ट मैनेजमेंट तक - सब कुछ आपके बजट में।
+                Plan your dream destination wedding with our expert team. Complete coordination 
+                from venue selection to guest management, all within your budget.
               </p>
             </div>
             
@@ -97,10 +97,10 @@ const Landing = () => {
               <div className="p-4 rounded-full bg-gradient-primary w-fit mx-auto mb-6">
                 <Sparkles className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">ईवेंट मैनेजमेंट</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Event Management</h3>
               <p className="text-muted-foreground leading-relaxed">
-                प्री-वेडिंग सेरेमनी से रिसेप्शन तक फुल-सर्विस ईवेंट मैनेजमेंट। 
-                प्रोफेशनल कोऑर्डिनेशन - हर पल को परफेक्ट बनाने के लिए।
+                Full-service event management from pre-wedding ceremonies to reception. 
+                Professional coordination ensuring every moment is perfect.
               </p>
             </div>
             
@@ -108,10 +108,10 @@ const Landing = () => {
               <div className="p-4 rounded-full bg-gradient-elegant w-fit mx-auto mb-6">
                 <CheckCircle className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-4">कंप्लीट वेडिंग पैकेज</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-4">Complete Wedding Packages</h3>
               <p className="text-muted-foreground leading-relaxed">
-                ऑल-इनक्लूसिव पैकेज जिसमें शादी का हर एस्पेक्ट कवर है - वेन्यू, कैटरिंग, 
-                डेकोरेशन, फोटोग्राफी और बहुत कुछ। एक पैकेज, सब कुछ कवर।
+                All-inclusive packages covering every aspect of your wedding - venue, catering, 
+                decoration, photography, and more. One package, everything covered.
               </p>
             </div>
           </div>

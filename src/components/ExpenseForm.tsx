@@ -204,17 +204,17 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
-          नया खर्च जोड़ें
+          Add New Expense
         </CardTitle>
         <CardDescription>
-          शादी के खर्च की डिटेल्स भरें - सभी * वाली फील्ड्स जरूरी हैं
+          Enter the details for your wedding expense
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>तारीख *</Label>
+              <Label>Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -225,7 +225,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "dd/MM/yyyy") : <span>तारीख चुनें</span>}
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -241,11 +241,11 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="item_name">आइटम/खर्च का नाम *</Label>
+              <Label htmlFor="item_name">Item / Expense Title</Label>
               <Input
                 id="item_name"
                 {...register('item_name', { required: 'Item name is required' })}
-                placeholder="जैसे: फोटोग्राफर, मेहंदी, डेकोरेशन"
+                placeholder="Enter item name"
               />
               {errors.item_name && (
                 <p className="text-sm text-red-500">{errors.item_name.message}</p>
@@ -253,10 +253,10 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>कैटेगरी *</Label>
+              <Label>Category</Label>
               <Select onValueChange={(value) => setValue('category_id', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="कैटेगरी चुनें" />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.filter(category => category.id && category.id.toString().trim() !== '').map((category) => (
@@ -270,7 +270,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="quantity">मात्रा/संख्या</Label>
+              <Label htmlFor="quantity">Quantity</Label>
               <Input
                 id="quantity"
                 type="number"
@@ -282,7 +282,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="unit_price">रेट प्रति यूनिट (₹)</Label>
+              <Label htmlFor="unit_price">Unit Price (₹)</Label>
               <Input
                 id="unit_price"
                 type="number"
@@ -294,14 +294,14 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>कुल राशि</Label>
+              <Label>Total Amount</Label>
               <div className="p-2 bg-muted rounded-md">
                 ₹{totalAmount.toFixed(2)}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paid_amount">पैड की गई राशि (₹)</Label>
+              <Label htmlFor="paid_amount">Paid Amount (₹)</Label>
               <Input
                 id="paid_amount"
                 type="number"
@@ -314,24 +314,24 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>बकाया राशि</Label>
+              <Label>Balance</Label>
               <div className="p-2 bg-muted rounded-md">
                 ₹{balance.toFixed(2)}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>पेमेंट स्टेटस</Label>
+              <Label>Status</Label>
               <div className={cn("p-2 bg-muted rounded-md font-medium", getStatusColor())}>
                 {getPaidStatus()}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>पेमेंट किसने की</Label>
+              <Label>Paid By</Label>
               <Select onValueChange={(value) => setValue('paid_by_id', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="किसने पेमेंट की - चुनें" />
+                  <SelectValue placeholder="Select who paid" />
                 </SelectTrigger>
                 <SelectContent>
                   {paidByOptions.filter(option => option.id && option.id.toString().trim() !== '').map((option) => (
@@ -345,10 +345,10 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>इवेंट/फंक्शन *</Label>
+              <Label>Event</Label>
               <Select onValueChange={(value) => setValue('event_id', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="इवेंट चुनें" />
+                  <SelectValue placeholder="Select event" />
                 </SelectTrigger>
                 <SelectContent>
                   {events.filter(event => event.id && event.id.toString().trim() !== '').map((event) => (
@@ -362,10 +362,10 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <Label>पेमेंट मोड</Label>
+              <Label>Payment Mode</Label>
               <Select onValueChange={(value) => setValue('payment_mode_id', value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="पेमेंट कैसे की - चुनें" />
+                  <SelectValue placeholder="Select payment mode" />
                 </SelectTrigger>
                 <SelectContent>
                   {paymentModes.filter(mode => mode.id && mode.id.toString().trim() !== '').map((mode) => (
@@ -380,22 +380,22 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">नोट्स (वैकल्पिक)</Label>
+            <Label htmlFor="notes">Notes (Optional)</Label>
             <Textarea
               id="notes"
               {...register('notes')}
-              placeholder="कोई भी अतिरिक्त जानकारी..."
+              placeholder="Add any additional notes..."
               rows={3}
             />
           </div>
 
           <Button 
             type="submit" 
-            variant="marigold" 
+            variant="wedding" 
             className="w-full"
             disabled={isLoading}
           >
-            {isLoading ? "खर्च जोड़ा जा रहा है..." : "खर्च जोड़ें"}
+            {isLoading ? "Adding..." : "Add Expense"}
           </Button>
         </form>
       </CardContent>
