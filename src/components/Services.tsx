@@ -7,6 +7,9 @@ import { Heart, Sparkles, CheckCircle, MapPin, Camera, Utensils, Music, Flower, 
 import { useToast } from '@/hooks/use-toast';
 import BookingForm from '@/components/BookingForm';
 
+// Utility for Indian Rupee formatting
+const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
 const Services = () => {
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -16,7 +19,7 @@ const Services = () => {
     {
       id: 'intimate',
       name: 'Intimate Wedding',
-      price: '$15,000 - $25,000',
+      price: 1500000,
       guests: 'Up to 50 guests',
       icon: Heart,
       popular: false,
@@ -43,7 +46,7 @@ const Services = () => {
     {
       id: 'premium',
       name: 'Premium Wedding',
-      price: '$35,000 - $55,000',
+      price: 3500000,
       guests: 'Up to 150 guests',
       icon: Sparkles,
       popular: true,
@@ -73,7 +76,7 @@ const Services = () => {
     {
       id: 'destination',
       name: 'Destination Wedding',
-      price: '$50,000 - $100,000',
+      price: 5000000,
       guests: 'Up to 100 guests',
       icon: MapPin,
       popular: false,
@@ -103,10 +106,10 @@ const Services = () => {
   ];
 
   const additionalServices = [
-    { name: 'Photography Extension', price: '$500/hour', icon: Camera },
-    { name: 'Catering Upgrade', price: '$25/person', icon: Utensils },
-    { name: 'Live Band', price: '$2,500', icon: Music },
-    { name: 'Floral Enhancement', price: '$1,000 - $5,000', icon: Flower },
+    { name: 'Photography Extension', price: 500, icon: Camera },
+    { name: 'Catering Upgrade', price: 25, icon: Utensils },
+    { name: 'Live Band', price: 2500, icon: Music },
+    { name: 'Floral Enhancement', price: 1000, icon: Flower },
   ];
 
   const handleBookPackage = (packageId: string) => {
@@ -163,7 +166,7 @@ const Services = () => {
                 <CardTitle className="text-xl">{pkg.name}</CardTitle>
                 <CardDescription className="text-sm">{pkg.description}</CardDescription>
                 <div className="space-y-1">
-                  <div className="text-2xl font-bold text-primary">{pkg.price}</div>
+                  <div className="text-2xl font-bold text-primary">{formatINR(pkg.price)}</div>
                   <div className="text-sm text-muted-foreground">{pkg.guests}</div>
                 </div>
               </CardHeader>
@@ -228,7 +231,7 @@ const Services = () => {
                   <IconComponent className="h-5 w-5 text-primary" />
                 </div>
                 <h4 className="font-medium text-foreground mb-1">{service.name}</h4>
-                <p className="text-sm text-primary font-semibold mb-2">{service.price}</p>
+                <p className="text-sm text-primary font-semibold mb-2">{formatINR(service.price)}</p>
                 <Button size="sm" variant="outline" className="w-full">
                   Add to Package
                 </Button>

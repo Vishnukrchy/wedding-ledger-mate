@@ -115,13 +115,8 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
     setFilteredExpenses(filtered);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  // Utility for Indian Rupee formatting
+  const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -295,13 +290,13 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                       <Badge variant="outline">{expense.categories.name}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(expense.total_amount)}
+                      {formatINR(expense.total_amount)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(expense.paid_amount)}
+                      {formatINR(expense.paid_amount)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(expense.balance)}
+                      {formatINR(expense.balance)}
                     </TableCell>
                     <TableCell>{getStatusBadge(expense.paid_status)}</TableCell>
                     <TableCell>{expense.paid_by.name}</TableCell>

@@ -116,13 +116,8 @@ const Dashboard = () => {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  // Utility for Indian Rupee formatting
+  const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
 
   const getPercentagePaid = () => {
     if (stats.totalExpenses === 0) return 0;
@@ -223,7 +218,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
-              {formatCurrency(stats.totalExpenses)}
+              {formatINR(stats.totalExpenses)}
             </div>
             <p className="text-xs text-muted-foreground">
               {stats.expenseCount} expense{stats.expenseCount !== 1 ? 's' : ''} tracked
@@ -238,7 +233,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(stats.totalPaid)}
+              {formatINR(stats.totalPaid)}
             </div>
             <p className="text-xs text-muted-foreground">
               {getPercentagePaid()}% of total budget
@@ -253,7 +248,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {formatCurrency(stats.totalBalance)}
+              {formatINR(stats.totalBalance)}
             </div>
             <p className="text-xs text-muted-foreground">
               {100 - getPercentagePaid()}% remaining to pay
@@ -346,7 +341,7 @@ const Dashboard = () => {
                             {percentage.toFixed(1)}%
                           </span>
                           <span className="text-sm font-medium text-foreground">
-                            {formatCurrency(amount)}
+                            {formatINR(amount)}
                           </span>
                         </div>
                       </div>
@@ -387,9 +382,9 @@ const Dashboard = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-medium text-foreground">{formatCurrency(expense.total_amount)}</div>
+                      <div className="font-medium text-foreground">{formatINR(expense.total_amount)}</div>
                       <div className="text-sm text-muted-foreground">
-                        Paid: {formatCurrency(expense.paid_amount)}
+                        Paid: {formatINR(expense.paid_amount)}
                       </div>
                     </div>
                     {getStatusBadge(expense.paid_status)}

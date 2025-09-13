@@ -105,6 +105,9 @@ const SetupWizard = ({ onSetupComplete }: SetupWizardProps) => {
     setIsLoading(false);
   };
 
+  // Utility for Indian Rupee formatting
+  const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-elegant p-4">
       <Card className="w-full max-w-2xl shadow-elegant">

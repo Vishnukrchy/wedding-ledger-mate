@@ -15,6 +15,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
+// Utility for Indian Rupee formatting
+const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
 interface BookingFormData {
   // Personal Information
   bride_name: string;
@@ -180,7 +183,7 @@ const BookingForm = ({ package: selectedPackage, onBookingComplete }: BookingFor
         <h3 className="font-semibold text-foreground mb-2">Selected Package: {selectedPackage.name}</h3>
         <p className="text-sm text-muted-foreground mb-2">{selectedPackage.description}</p>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-bold text-primary">{selectedPackage.price}</span>
+          <span className="text-lg font-bold text-primary">{formatINR(Number(selectedPackage.price.replace(/[^0-9.-]+/g, "")))}</span>
           <span className="text-sm text-muted-foreground">{selectedPackage.guests}</span>
         </div>
       </div>

@@ -186,6 +186,9 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
     setIsLoading(false);
   };
 
+  // Utility for Indian Rupee formatting
+  const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
   const getPaidStatus = () => {
     if (paidAmount >= totalAmount && totalAmount > 0) return 'Paid';
     if (paidAmount > 0) return 'Half Paid';
@@ -296,7 +299,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             <div className="space-y-2">
               <Label>Total Amount</Label>
               <div className="p-2 bg-muted rounded-md">
-                ₹{totalAmount.toFixed(2)}
+                {formatINR(totalAmount)}
               </div>
             </div>
 
@@ -316,7 +319,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
             <div className="space-y-2">
               <Label>Balance</Label>
               <div className="p-2 bg-muted rounded-md">
-                ₹{balance.toFixed(2)}
+                {formatINR(balance)}
               </div>
             </div>
 

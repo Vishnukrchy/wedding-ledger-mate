@@ -7,6 +7,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, DollarSign, CreditCard, Calendar, Target, AlertTriangle, CheckCircle, Clock, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
 
+// Utility for Indian Rupee formatting
+const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
 const Analytics = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,9 +198,9 @@ const Analytics = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{totalSpent.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{formatINR(totalSpent)}</div>
             <p className="text-xs text-muted-foreground">
-              {budgetUsed.toFixed(1)}% of estimated budget (₹{estimatedBudget.toLocaleString()})
+              {budgetUsed.toFixed(1)}% of estimated budget ({formatINR(estimatedBudget)})
             </p>
             <Progress value={budgetUsed} className="mt-2" />
           </CardContent>
@@ -209,7 +212,7 @@ const Analytics = () => {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">₹{totalPaid.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600">{formatINR(totalPaid)}</div>
             <p className="text-xs text-muted-foreground">
               {paymentPercent.toFixed(1)}% of total expenses
             </p>
@@ -223,7 +226,7 @@ const Analytics = () => {
             <Clock className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">₹{totalBalance.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-orange-600">{formatINR(totalBalance)}</div>
             <p className="text-xs text-muted-foreground">
               Across {upcomingPayments.length} pending items
             </p>
@@ -247,7 +250,7 @@ const Analytics = () => {
               Across {Object.keys(categoryData).length} categories
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              Avg: ₹{(totalSpent / expenses.length).toLocaleString()}
+              Avg: {formatINR(totalSpent / expenses.length)}
             </p>
           </CardContent>
         </Card>
@@ -344,15 +347,15 @@ const Analytics = () => {
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <p className="text-muted-foreground">Total Amount</p>
-                          <p className="font-medium">₹{category.total.toLocaleString()}</p>
+                          <p className="font-medium">{formatINR(category.total)}</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Paid Amount</p>
-                          <p className="font-medium text-green-600">₹{category.paid.toLocaleString()}</p>
+                          <p className="font-medium text-green-600">{formatINR(category.paid)}</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Balance</p>
-                          <p className="font-medium text-orange-600">₹{category.balance.toLocaleString()}</p>
+                          <p className="font-medium text-orange-600">{formatINR(category.balance)}</p>
                         </div>
                       </div>
                       <Progress 
@@ -435,7 +438,7 @@ const Analytics = () => {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-orange-600">₹{expense.balance.toLocaleString()}</p>
+                        <p className="font-medium text-orange-600">{formatINR(expense.balance)}</p>
                         <Badge variant="outline" className="text-xs">
                           {expense.paid_status.replace('_', ' ').toUpperCase()}
                         </Badge>
@@ -477,7 +480,7 @@ const Analytics = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">₹{expense.total_amount.toLocaleString()}</p>
+                          <p className="font-medium">{formatINR(expense.total_amount)}</p>
                           <Badge variant={
                             expense.paid_status === 'paid' ? 'default' :
                             expense.paid_status === 'half_paid' ? 'secondary' : 'destructive'
