@@ -66,11 +66,13 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-rose': 'var(--gradient-rose)',
+				'gradient-marigold': 'var(--gradient-marigold)',
 				'gradient-elegant': 'var(--gradient-elegant)'
 			},
 			boxShadow: {
 				'elegant': 'var(--shadow-elegant)',
-				'card': 'var(--shadow-card)'
+				'card': 'var(--shadow-card)',
+				'glow': 'var(--shadow-glow)'
 			},
 			transitionTimingFunction: {
 				'smooth': 'var(--transition-smooth)'

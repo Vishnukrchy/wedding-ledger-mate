@@ -84,7 +84,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">
-                Welcome, {user?.user_metadata?.display_name || user?.email}
+                नमस्ते, {user?.user_metadata?.display_name || user?.email?.split('@')[0]}
               </span>
               <Button
                 variant="ghost"
@@ -114,19 +114,19 @@ const Index = () => {
               <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
                 <TabsTrigger value="services" className="flex items-center gap-2">
                   <Package className="h-4 w-4" />
-                  Services
+                  सर्विसेज
                 </TabsTrigger>
                 <TabsTrigger value="add" className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Expense
+                  खर्च जोड़ें
                 </TabsTrigger>
                 <TabsTrigger value="list" className="flex items-center gap-2">
                   <BarChart3 className="h-4 w-4" />
-                  Expense List
+                  खर्च लिस्ट
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4" />
-                  Analytics
+                  एनालिटिक्स
                 </TabsTrigger>
               </TabsList>
               
@@ -154,7 +154,7 @@ const Index = () => {
       <footer className="bg-background/50 border-t border-border/50 mt-16">
         <div className="container mx-auto px-4 py-6 text-center">
           <p className="text-sm text-muted-foreground">
-            Made with ❤️ for your perfect wedding day
+            आपकी परफेक्ट शादी के लिए ❤️ से बनाया गया
           </p>
         </div>
       </footer>
