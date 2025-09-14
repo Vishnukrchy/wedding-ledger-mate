@@ -37,23 +37,23 @@ const Landing = () => {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Track Your Perfect
-              <span className="block bg-gradient-rose bg-clip-text text-transparent">
-                Wedding Day
+              Plan Your Perfect
+              <span className="block bg-gradient-rose bg-clip-text text-transparent animate-fade-in">
+                Dream Wedding
               </span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-              Manage all your wedding expenses with elegance and ease. Stay on budget, 
-              track payments, and make your dream wedding a reality.
+              From intimate ceremonies to grand celebrations, we provide complete wedding management 
+              services with transparent pricing and expert planning.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" variant="elegant" asChild className="min-w-[200px]">
-                <Link to="/auth">Start Planning Now</Link>
+              <Button size="lg" variant="wedding" asChild className="min-w-[200px] hover-scale">
+                <Link to="/auth">Book Your Wedding</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="min-w-[200px]">
-                <Link to="/auth">Sign In</Link>
+              <Button size="lg" variant="outline" asChild className="min-w-[200px] hover-scale">
+                <Link to="/auth">View Packages</Link>
               </Button>
             </div>
           </div>
@@ -120,14 +120,14 @@ const Landing = () => {
             <div className="max-w-4xl mx-auto p-8 rounded-xl bg-card border border-primary/30 shadow-elegant">
               <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Start Planning?</h3>
               <p className="text-muted-foreground mb-6 text-lg">
-                Save your wedding details and our dedicated sales team will reach out to discuss 
+                Save your wedding details and our dedicated team will reach out to discuss 
                 your perfect wedding package. Get confirmed bookings with complete transparency.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="elegant" asChild>
+                <Button size="lg" variant="wedding" asChild className="hover-scale">
                   <Link to="/auth">Book Your Wedding</Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
+                <Button size="lg" variant="outline" asChild className="hover-scale">
                   <Link to="/auth">Get Free Consultation</Link>
                 </Button>
               </div>

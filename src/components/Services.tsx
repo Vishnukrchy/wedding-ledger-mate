@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Heart, Sparkles, CheckCircle, MapPin, Camera, Utensils, Music, Flower, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import BookingForm from '@/components/BookingForm';
+import PaymentModule from '@/components/PaymentModule';
 
 // Utility for Indian Rupee formatting
 const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
@@ -13,6 +14,7 @@ const formatINR = (amount: number) => amount.toLocaleString('en-IN', { style: 'c
 const Services = () => {
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showPaymentModule, setShowPaymentModule] = useState(false);
   const { toast } = useToast();
 
   const packages = [
@@ -116,16 +118,16 @@ const Services = () => {
     const selectedPkg = packages.find(p => p.id === packageId);
     if (selectedPkg) {
       setSelectedPackage(packageId);
-      setShowBookingForm(true);
+      setShowPaymentModule(true);
     }
   };
 
-  const handleBookingComplete = () => {
-    setShowBookingForm(false);
+  const handlePaymentComplete = () => {
+    setShowPaymentModule(false);
     setSelectedPackage(null);
     toast({
-      title: "Booking Request Submitted!",
-      description: "Our wedding consultants will contact you within 24 hours to discuss your requirements.",
+      title: "Booking Confirmed! 🎉",
+      description: "Your wedding package has been booked successfully. Our team will contact you within 24 hours.",
     });
   };
 
@@ -181,34 +183,14 @@ const Services = () => {
                   ))}
                 </div>
                 
-                <Dialog open={showBookingForm && selectedPackage === pkg.id} onOpenChange={setShowBookingForm}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      className="w-full" 
-                      variant={pkg.popular ? "default" : "outline"}
-                      onClick={() => handleBookPackage(pkg.id)}
-                    >
-                      Book This Package
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="flex items-center gap-2">
-                        <IconComponent className="h-5 w-5 text-primary" />
-                        Book {selectedPkg?.name}
-                      </DialogTitle>
-                      <DialogDescription>
-                        Fill in your details to book the {selectedPkg?.name} package. Our team will contact you to finalize the arrangements.
-                      </DialogDescription>
-                    </DialogHeader>
-                    {selectedPkg && (
-                      <BookingForm 
-                        package={selectedPkg} 
-                        onBookingComplete={handleBookingComplete}
-                      />
-                    )}
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  className="w-full" 
+                  variant={pkg.popular ? "wedding" : "outline"}
+                  onClick={() => handleBookPackage(pkg.id)}
+                  size="lg"
+                >
+                  Book This Package
+                </Button>
               </CardContent>
             </Card>
           );
@@ -250,7 +232,7 @@ const Services = () => {
             Book a free consultation to discuss your vision and get a personalized quote.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-gradient-primary hover:opacity-90">
+            <Button size="lg" variant="wedding">
               Schedule Free Consultation
             </Button>
             <Button size="lg" variant="outline">
@@ -259,6 +241,16 @@ const Services = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Module */}
+      {selectedPkg && (
+        <PaymentModule
+          package={selectedPkg}
+          isOpen={showPaymentModule}
+          onClose={() => setShowPaymentModule(false)}
+          onPaymentComplete={handlePaymentComplete}
+        />
+      )}
     </div>
   );
 };

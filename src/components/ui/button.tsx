@@ -18,8 +18,9 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        elegant: "bg-gradient-rose text-primary-foreground hover:shadow-elegant transition-all duration-300",
-        wedding: "bg-primary-glow text-primary-foreground hover:bg-primary hover:shadow-card transition-all duration-300",
+        elegant: "bg-gradient-elegant text-white shadow-elegant hover:shadow-glow transition-all duration-300",
+        wedding: "bg-gradient-rose text-white shadow-glow hover:opacity-90 transition-all duration-300",
+        marigold: "bg-gradient-marigold text-white shadow-glow hover:opacity-90 transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

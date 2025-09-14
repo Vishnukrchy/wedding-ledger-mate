@@ -13,7 +13,8 @@ import {
   Target,
   AlertCircle,
   CheckCircle,
-  Clock
+  Clock,
+  Heart
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -398,60 +399,72 @@ const Dashboard = () => {
 
       {/* Welcome Message for New Users */}
       {stats.expenseCount === 0 && (
-        <Card className="shadow-card border-primary/20 bg-gradient-to-br from-primary/5 to-primary-glow/5">
+        <Card className="shadow-elegant border-primary/20 bg-gradient-to-br from-primary/5 to-primary-glow/5 animate-fade-in">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-6 w-6 text-primary" />
-              Welcome to Your Wedding Expense Tracker! 💍
+              Welcome to Your Wedding Dashboard! 💍
             </CardTitle>
             <CardDescription>
-              Start planning your perfect wedding by tracking all your expenses
+              Start planning your perfect wedding with our comprehensive management tools
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium text-foreground">Quick Start Guide:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h4 className="font-semibold text-foreground">Wedding Management Services:</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Browse our wedding packages
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span>Complete wedding packages</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Add your first expense
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span>Destination wedding planning</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    Track payment progress
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span>Budget tracking & analytics</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    View analytics & insights
+                    <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span>Vendor coordination</span>
                   </li>
                 </ul>
               </div>
-              <div className="space-y-2">
-                <h4 className="font-medium text-foreground">Features Available:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Expense categorization</li>
-                  <li>• Payment tracking</li>
-                  <li>• Budget analytics</li>
-                  <li>• Event management</li>
-                  <li>• Real-time insights</li>
+              <div className="space-y-3">
+                <h4 className="font-semibold text-foreground">Get Started:</h4>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center font-semibold">1</span>
+                    <span>Browse wedding packages</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center font-semibold">2</span>
+                    <span>Book with advance payment</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center font-semibold">3</span>
+                    <span>Track expenses & payments</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center font-semibold">4</span>
+                    <span>Enjoy your perfect day</span>
+                  </li>
                 </ul>
               </div>
             </div>
             <div className="pt-4 border-t border-border/50">
-              <p className="text-sm text-muted-foreground mb-3">
-                Ready to start planning? Add your first expense or explore our wedding packages.
+              <p className="text-sm text-muted-foreground mb-4 text-center">
+                Ready to start planning your dream wedding? Explore our packages or track your expenses.
               </p>
-              <div className="flex gap-2">
-                <Button variant="wedding" size="sm">
-                  Add First Expense
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button variant="wedding" size="sm" className="hover-scale">
+                  <Heart className="h-4 w-4 mr-2" />
+                  Browse Wedding Packages
                 </Button>
-                <Button variant="outline" size="sm">
-                  View Packages
+                <Button variant="outline" size="sm" className="hover-scale">
+                  Add First Expense
                 </Button>
               </div>
             </div>
