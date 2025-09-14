@@ -27,18 +27,35 @@ interface ExpenseFormData {
   notes: string;
 }
 
-interface ExpenseFormProps {
-  onExpenseAdded: () => void;
+interface EditingExpense {
+  id: string;
+  date: Date;
+  item_name: string;
+  quantity: number;
+  total_amount: number;
+  paid_amount: number;
+  paid_status: 'paid' | 'half_paid' | 'unpaid';
+  notes: string;
+  category_id: string;
+  paid_by_id: string;
+  event_id: string;
+  payment_mode_id: string;
 }
 
-const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
+interface ExpenseFormProps {
+  onExpenseAdded: () => void;
+  editingExpense?: EditingExpense;
+}
+
+const ExpenseForm = ({ onExpenseAdded, editingExpense }: ExpenseFormProps) => {
   const { toast } = useToast();
-  const [date, setDate] = useState<Date>();
+  const [date, setDate] = useState<Date | undefined>(editingExpense?.date);
   const [categories, setCategories] = useState<any[]>([]);
   const [paidByOptions, setPaidByOptions] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [paymentModes, setPaymentModes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const isEditing = !!editingExpense;
 
   const {
     register,
@@ -47,7 +64,15 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
     watch,
     reset,
     formState: { errors },
-  } = useForm<ExpenseFormData>();
+  } = useForm<ExpenseFormData>({
+    defaultValues: editingExpense ? {
+      item_name: editingExpense.item_name,
+      quantity: editingExpense.quantity,
+      unit_price: editingExpense.total_amount / editingExpense.quantity,
+      paid_amount: editingExpense.paid_amount,
+      notes: editingExpense.notes || '',
+    } : {}
+  });
 
   const quantity = watch('quantity') || 1;
   const unitPrice = watch('unit_price') || 0;
@@ -79,6 +104,20 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
 
         if (paidByRes.data) setPaidByOptions(paidByRes.data);
         if (eventsRes.data) setEvents(eventsRes.data);
+
+        // Set default values for editing
+        if (editingExpense) {
+          // Find and set the correct IDs for selects
+          const category = categoriesRes.data?.find(c => c.name === editingExpense.category_id);
+          const paidBy = paidByRes.data?.find(p => p.name === editingExpense.paid_by_id);
+          const event = eventsRes.data?.find(e => e.name === editingExpense.event_id);
+          const paymentMode = paymentModesRes.data?.find(pm => pm.name === editingExpense.payment_mode_id);
+
+          if (category) setValue('category_id', category.id);
+          if (paidBy) setValue('paid_by_id', paidBy.id);
+          if (event) setValue('event_id', event.id);
+          if (paymentMode) setValue('payment_mode_id', paymentMode.id);
+        }
       }
     } catch (error) {
       console.error('Error loading master data:', error);
@@ -148,32 +187,64 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
         paidStatus = 'half_paid';
       }
 
-      const { error } = await supabase.from('expenses').insert({
-        user_id: user.id,
-        date: format(date, 'yyyy-MM-dd'),
-        item_name: data.item_name,
-        category_id: data.category_id,
-        quantity: data.quantity,
-        unit_price: data.unit_price,
-        total_amount: totalAmount,
-        paid_amount: data.paid_amount,
-        balance: balance,
-        paid_status: paidStatus,
-        paid_by_id: data.paid_by_id,
-        event_id: data.event_id,
-        payment_mode_id: data.payment_mode_id,
-        notes: data.notes || null,
-      });
+      if (isEditing && editingExpense) {
+        // Update existing expense
+        const { error } = await supabase
+          .from('expenses')
+          .update({
+            date: format(date, 'yyyy-MM-dd'),
+            item_name: data.item_name,
+            category_id: data.category_id,
+            quantity: data.quantity,
+            unit_price: data.unit_price,
+            total_amount: totalAmount,
+            paid_amount: data.paid_amount,
+            balance: balance,
+            paid_status: paidStatus,
+            paid_by_id: data.paid_by_id,
+            event_id: data.event_id,
+            payment_mode_id: data.payment_mode_id,
+            notes: data.notes || null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', editingExpense.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Expense added successfully!",
-      });
+        toast({
+          title: "Success",
+          description: "Expense updated successfully!",
+        });
+      } else {
+        // Create new expense
+        const { error } = await supabase.from('expenses').insert({
+          user_id: user.id,
+          date: format(date, 'yyyy-MM-dd'),
+          item_name: data.item_name,
+          category_id: data.category_id,
+          quantity: data.quantity,
+          unit_price: data.unit_price,
+          total_amount: totalAmount,
+          paid_amount: data.paid_amount,
+          balance: balance,
+          paid_status: paidStatus,
+          paid_by_id: data.paid_by_id,
+          event_id: data.event_id,
+          payment_mode_id: data.payment_mode_id,
+          notes: data.notes || null,
+        });
 
-      reset();
-      setDate(undefined);
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Expense added successfully!",
+        });
+
+        reset();
+        setDate(undefined);
+      }
+
       onExpenseAdded();
     } catch (error: any) {
       toast({
@@ -207,6 +278,7 @@ const ExpenseForm = ({ onExpenseAdded }: ExpenseFormProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
+          {isEditing ? 'Edit Expense' : 'Add New Expense'}
           Add New Expense
         </CardTitle>
         <CardDescription>

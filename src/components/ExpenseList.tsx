@@ -1,14 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Search, Filter } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Search, Filter, Edit2, Trash2, MoreHorizontal } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
+import ExpenseForm from '@/components/ExpenseForm';
 
 interface Expense {
   id: string;
@@ -32,6 +38,7 @@ interface ExpenseListProps {
 
 const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +48,10 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
   const [eventFilter, setEventFilter] = useState('');
   const [categories, setCategories] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -143,6 +154,56 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
     setCategoryFilter('');
     setStatusFilter('');
     setEventFilter('');
+  };
+
+  const handleEdit = (expense: Expense) => {
+    setEditingExpense(expense);
+    setShowEditDialog(true);
+  };
+
+  const handleDelete = (expense: Expense) => {
+    setDeletingExpense(expense);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingExpense) return;
+
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', deletingExpense.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Expense Deleted",
+        description: `${deletingExpense.item_name} has been deleted successfully.`,
+      });
+
+      // Refresh the list
+      loadExpenses();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete expense",
+        variant: "destructive",
+      });
+    } finally {
+      setShowDeleteDialog(false);
+      setDeletingExpense(null);
+    }
+  };
+
+  const handleEditComplete = () => {
+    setShowEditDialog(false);
+    setEditingExpense(null);
+    loadExpenses(); // Refresh the list
+    toast({
+      title: "Expense Updated",
+      description: "The expense has been updated successfully.",
+    });
   };
 
   if (loading) {
@@ -270,12 +331,13 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                 <TableHead>Status</TableHead>
                 <TableHead>Paid By</TableHead>
                 <TableHead>Event</TableHead>
+                <TableHead className="w-[50px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredExpenses.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                     No expenses found matching your filters
                   </TableCell>
                 </TableRow>
@@ -303,12 +365,90 @@ const ExpenseList = ({ refreshTrigger }: ExpenseListProps) => {
                     <TableCell>
                       <Badge variant="secondary">{expense.events.name}</Badge>
                     </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem 
+                            onClick={() => handleEdit(expense)}
+                            className="cursor-pointer"
+                          >
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(expense)}
+                            className="cursor-pointer text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </div>
+
+        {/* Edit Dialog */}
+        {editingExpense && (
+          <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Expense</DialogTitle>
+                <DialogDescription>
+                  Update the details for "{editingExpense.item_name}"
+                </DialogDescription>
+              </DialogHeader>
+              <ExpenseForm 
+                onExpenseAdded={handleEditComplete}
+                editingExpense={{
+                  id: editingExpense.id,
+                  date: new Date(editingExpense.date),
+                  item_name: editingExpense.item_name,
+                  quantity: editingExpense.quantity,
+                  total_amount: editingExpense.total_amount,
+                  paid_amount: editingExpense.paid_amount,
+                  paid_status: editingExpense.paid_status,
+                  notes: editingExpense.notes || '',
+                  category_id: editingExpense.categories?.name || '',
+                  paid_by_id: editingExpense.paid_by?.name || '',
+                  event_id: editingExpense.events?.name || '',
+                  payment_mode_id: editingExpense.payment_modes?.name || ''
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deletingExpense?.item_name}"? 
+                This action cannot be undone and will permanently remove this expense from your records.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete Expense
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
