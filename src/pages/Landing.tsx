@@ -15,10 +15,10 @@ const Landing = () => {
               <Sparkles className="h-5 w-5 text-primary-glow" />
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" asChild>
+              <Button variant="glass" asChild>
                 <Link to="/auth">Sign In</Link>
               </Button>
-              <Button variant="elegant" asChild>
+              <Button variant="premium" asChild>
                 <Link to="/auth">Get Started</Link>
               </Button>
             </div>
@@ -49,10 +49,10 @@ const Landing = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" variant="wedding" asChild className="min-w-[200px] hover-scale">
+              <Button size="lg" variant="premium" asChild className="min-w-[200px] text-base font-semibold">
                 <Link to="/auth">Book Your Wedding</Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="min-w-[200px] hover-scale">
+              <Button size="lg" variant="glass" asChild className="min-w-[200px] text-base font-semibold">
                 <Link to="/auth">View Packages</Link>
               </Button>
             </div>

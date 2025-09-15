@@ -125,8 +125,9 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full" 
-                    variant="elegant"
+                    className="w-full text-base font-semibold py-6" 
+                    variant="premium"
+                    size="lg"
                     disabled={isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign In"}
@@ -168,8 +169,9 @@ const Auth = () => {
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full" 
-                    variant="wedding"
+                    className="w-full text-base font-semibold py-6" 
+                    variant="elegant"
+                    size="lg"
                     disabled={isLoading}
                   >
                     {isLoading ? "Creating account..." : "Create Account"}
